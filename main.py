@@ -1,28 +1,35 @@
-# Programa completo em python3
-
-import customtkinter as ctk # Importando a biblioteca para GUI
-
+import customtkinter as ctk  # Importando a biblioteca para GUI
 import json
+import os
+import sys
+
+# Função para encontrar o caminho correto do arquivo
+def resource_path(relative_path):
+    """Obtenha o caminho absoluto para o arquivo 'dados.json', seja no desenvolvimento ou no executável."""
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    return os.path.join(base_path, relative_path)
 
 # Carrega os dados do json
-def carregar_lista(): # Lista de tasks
+def carregar_lista():  # Lista de tasks
     try: 
-        with open('dados.json', 'r') as arquivo:
-            lista =json.load(arquivo)
-            return lista['lista'] # Retorna lista
+        # Usando resource_path para garantir que o caminho está correto
+        with open(resource_path('dados.json'), 'r') as arquivo:
+            lista = json.load(arquivo)
+            return lista['lista']  # Retorna lista
             
     except (FileNotFoundError, KeyError):
-        return [] # Retorna a frase erro
+        return []  # Retorna a frase erro
         
 def salvar_lista(lista, primeira_linha):
     primeira_linha = lista.pop(0)
-    lista.append(primeira_linha) # Adiciona a primeira linha a lista
-    with open('dados.json', 'w') as arquivo:
-        json.dump({"lista": lista}, arquivo, indent=4) # Salva a lista editada
+    lista.append(primeira_linha)  # Adiciona a primeira linha a lista
+    # Usando resource_path para garantir o caminho correto
+    with open(resource_path('dados.json'), 'w') as arquivo:
+        json.dump({"lista": lista}, arquivo, indent=4)  # Salva a lista editada
         
 def lista_para_linha(lista):
     lista = carregar_lista()
-    if lista: # Verifica se lista não está vazia
+    if lista:  # Verifica se lista não está vazia
         primeira_linha = lista.pop(0)
         return primeira_linha
     else:
@@ -30,27 +37,27 @@ def lista_para_linha(lista):
         
 # Personalização da janela
 
-def fechar_janela(): # Função para fechar a janela
+def fechar_janela():  # Função para fechar a janela
     janela.destroy()
     
 def button_event(lista, primeira_linha):
     salvar_lista(lista, primeira_linha)
     fechar_janela()
-    
 
-janela = ctk.CTk() # Cria a janela
-janela.title("Daily task") # Define o titulo da janela
-janela.geometry("300x300") # Define o tamanha da janela 
-janela.resizable(width=False, height=False) # Define o tamanho da janela como imutável
-janela.attributes("-topmost", True) # Outros apps não podem sobrepor a janela
-screen_width = janela.winfo_screenwidth() # Define a largura total da janela que abriu o app
-second_screen_x = -screen_width # Define o x da segunda tela negativando a largura da primeira
+# Janela do app
+janela = ctk.CTk()  # Cria a janela
+janela.title("Daily task")  # Define o título da janela
+janela.geometry("300x300")  # Define o tamanho da janela 
+janela.resizable(width=False, height=False)  # Define o tamanho da janela como imutável
+janela.attributes("-topmost", True)  # Outros apps não podem sobrepor a janela
+screen_width = janela.winfo_screenwidth()  # Largura da tela
+second_screen_x = -screen_width  # Define o x da segunda tela negativando a largura da primeira
 second_screen_y = 0
-janela.geometry(f"300x300+{second_screen_x}+{second_screen_y}") # Define a janela para abrir no canto mais a esquerda possivel contando com a 2 tela
-janela.protocol("WM_DELETE_WINDOW", fechar_janela) # Configurando o evento de fechar a janela com o botão "X" / Chama a função fechar_janela
+janela.geometry(f"300x300+{second_screen_x}+{second_screen_y}")  # Define a janela para abrir no canto mais à esquerda
+janela.protocol("WM_DELETE_WINDOW", fechar_janela)  # Configurando o evento de fechar a janela com o botão "X"
 
 # Começa a trabalhar com o arquivo json
-lista = carregar_lista() # "Baixa" a lista para o programa
+lista = carregar_lista()  # "Baixa" a lista para o programa
 primeira_linha = lista_para_linha(lista)
 
 # Define um text box
@@ -65,7 +72,3 @@ botao.pack(side=ctk.RIGHT, padx=5, pady=5)  # Adiciona o botão
 
 # Inicializa a janela
 janela.mainloop()
-
-
-
-
